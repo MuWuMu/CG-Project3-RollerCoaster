@@ -71,7 +71,7 @@ int main() {
 
     Shader shader("../../src/shaders/vertex.glsl", "../../src/shaders/fragment.glsl");
 
-    // set up vertex data (and buffer(s)) and configure vertex attributes
+    // set up vertex data (and buffers) and configure vertex attributes
     // ------------------------------------------------------------------
     float vertices[] = {
         // positions          // colors           // texture coords
@@ -116,12 +116,8 @@ int main() {
     Texture texture("../../source/container.jpg");
     //================================================================================================
 
-
-    // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
+    // unbind VBO and VAO
     glBindBuffer(GL_ARRAY_BUFFER, 0); 
-
-    // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
-    // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
     glBindVertexArray(0); 
 
     //================================================================================================
@@ -160,7 +156,7 @@ int main() {
 
         // draw
         shader.use();
-        glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
+        glBindVertexArray(VAO); // only have a single VAO, no need to bind it every time, but bind it to keep codes clean
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         // swap buffer and poll IO events
