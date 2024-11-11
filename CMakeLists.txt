@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 project(roller-coaster)
 
 set(SRC_DIR ${PROJECT_SOURCE_DIR}/src/)
+set(SOURCE_DIR ${PROJECT_SOURCE_DIR}/source/)
 set(INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include/)
 set(LIB_DIR ${PROJECT_SOURCE_DIR}/lib/)
 
@@ -37,6 +38,10 @@ add_library(ImGUI
 add_executable(roller-coaster 
 	${SRC_DIR}main.cpp
 	${SRC_DIR}glad.c
+	${SRC_DIR}stb_image.h
+	${SRC_DIR}stb_image.cpp
+	${SRC_DIR}Shader.h
+	${SRC_DIR}Shader.cpp
 )
 
 target_link_libraries(roller-coaster
