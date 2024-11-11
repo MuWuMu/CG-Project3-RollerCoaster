@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 project(roller-coaster)
 
 set(SRC_DIR ${PROJECT_SOURCE_DIR}/src/)
-set(SOURCE_DIR ${PROJECT_SOURCE_DIR}/source/)
+set(RESOURCE_DIR ${PROJECT_SOURCE_DIR}/resources/)
 set(INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include/)
 set(LIB_DIR ${PROJECT_SOURCE_DIR}/lib/)
 
@@ -44,6 +44,21 @@ add_executable(roller-coaster
 	${SRC_DIR}Shader.cpp
 	${SRC_DIR}Texture.h
 	${SRC_DIR}Texture.cpp
+)
+
+# Project output directory
+set(PROJECT_OUTPUT_DIR ${CMAKE_BINARY_DIR}/$<CONFIG>)
+
+# Copy shaders and resources to output directory
+add_custom_command(
+	TARGET roller-coaster POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_OUTPUT_DIR}/shaders
+	COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_OUTPUT_DIR}/resources
+
+	COMMAND ${CMAKE_COMMAND} -E copy_directory
+	${SRC_DIR}/shaders		${PROJECT_OUTPUT_DIR}/shaders
+	COMMAND ${CMAKE_COMMAND} -E copy_directory
+	${RESOURCE_DIR}			${PROJECT_OUTPUT_DIR}/resources
 )
 
 target_link_libraries(roller-coaster

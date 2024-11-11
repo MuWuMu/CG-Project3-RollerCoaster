@@ -69,7 +69,7 @@ int main() {
     //================================================================================================
     // Read shaders from files
 
-    Shader shader("../../src/shaders/vertex.glsl", "../../src/shaders/fragment.glsl");
+    Shader shader("shaders/vertex.glsl", "shaders/fragment.glsl");
 
     // set up vertex data (and buffers) and configure vertex attributes
     // ------------------------------------------------------------------
@@ -113,7 +113,7 @@ int main() {
 
     //================================================================================================
     // load texture
-    Texture texture("../../source/container.jpg");
+    Texture texture("resources/container.jpg");
     //================================================================================================
 
     // unbind VBO and VAO
