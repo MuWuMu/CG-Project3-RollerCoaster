@@ -42,6 +42,8 @@ add_executable(roller-coaster
 	${SRC_DIR}stb_image.cpp
 	${SRC_DIR}Shader.h
 	${SRC_DIR}Shader.cpp
+	${SRC_DIR}Texture.h
+	${SRC_DIR}Texture.cpp
 )
 
 target_link_libraries(roller-coaster

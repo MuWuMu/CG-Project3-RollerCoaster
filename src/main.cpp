@@ -11,7 +11,7 @@
 #include <string>
 
 #include "Shader.h"
-#include "stb_image.h"
+#include "Texture.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
@@ -113,25 +113,7 @@ int main() {
 
     //================================================================================================
     // load texture
-    unsigned int texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture); // the changes with GL_TEXTURE_2D will affect on 'texture'
-    // wrapping parameter
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    // filtering parameter
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    // create texture
-    int width, height, nrChannels;
-    unsigned char* data = stbi_load("../../source/container.jpg", &width, &height, &nrChannels, 0); // load in data
-    if(data) {  // create
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    } else {
-        std::cerr << "Failed to load texture" << std::endl;
-    }
-    stbi_image_free(data);
+    Texture texture("../../source/container.jpg");
     //================================================================================================
 
 
@@ -174,7 +156,7 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT);
 
         // texture
-        glBindTexture(GL_TEXTURE_2D, texture);
+        texture.use();
 
         // draw
         shader.use();
@@ -199,6 +181,7 @@ int main() {
     glDeleteBuffers(1, &VBO);
     glDeleteBuffers(1, &EBO);
     shader.del();
+    texture.del();
 
     glfwDestroyWindow(window);
     glfwTerminate();
