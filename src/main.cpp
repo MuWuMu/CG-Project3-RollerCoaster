@@ -40,6 +40,9 @@ bool firstMouse = true;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
+bool mouseControlEnabled = true;
+bool mouseControlButtonPressed = false;
+
 int main() {
 
     //================================================================================================
@@ -216,10 +219,30 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 void processInput(GLFWwindow* window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+
+    // Switch mouse control
+    if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS) {
+        if (!mouseControlButtonPressed) {
+            mouseControlEnabled = !mouseControlEnabled;
+            if (mouseControlEnabled) {
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                glfwSetCursorPosCallback(window, mouse_callback);
+            } else {
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+                glfwSetCursorPosCallback(window, nullptr);
+            }
+            mouseControlButtonPressed = true;
+        }
+        
+    } else {
+        mouseControlButtonPressed = false;
+    }
 }
 
 void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 {
+    if (!mouseControlEnabled) return;
+
     float xpos = static_cast<float>(xposIn);
     float ypos = static_cast<float>(yposIn);
 
