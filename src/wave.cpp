@@ -56,15 +56,17 @@ void Wave::initMesh() {
 }
 
 void Wave::update(float deltaTime) {
-    time += deltaTime;
+    float speed = 1.0f; // Wave speed
+    time += deltaTime * speed;
     updateMesh();
 }
 
 void Wave::updateMesh() {
+    float amplitude = 3.0f; // Wave amplitude
     // Update positions and normals based on time
     for (unsigned int y = 0; y <= height; ++y) {
         for (unsigned int x = 0; x <= width; ++x) {
-            float waveHeight = sinf((float)x * 0.1f + time) * cosf((float)y * 0.1f + time);
+            float waveHeight = amplitude * sinf((float)x * 0.1f + time) * cosf((float)y * 0.1f + time);
             positions[y * (width + 1) + x].y = waveHeight;
             normals[y * (width + 1) + x] = glm::normalize(glm::vec3(-0.1f * cosf((float)x * 0.1f + time), 1.0f, -0.1f * sinf((float)y * 0.1f + time)));
         }

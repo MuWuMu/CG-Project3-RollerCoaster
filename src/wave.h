@@ -6,6 +6,7 @@
 
 class Wave {
 public:
+
     Wave(unsigned int width, unsigned int height);
     void update(float deltaTime);
     void render();
