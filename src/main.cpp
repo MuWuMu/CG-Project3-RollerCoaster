@@ -79,13 +79,21 @@ int main() {
     }
 
     // init ImGui
+    IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     ImGui::StyleColorsDark();
 
     // ImGui GLFW and OpenGL3 initailization
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init("#version 460"); // OpenGL version
+    if (!ImGui_ImplGlfw_InitForOpenGL(window, true)) {
+        std::cerr << "Failed to initialize ImGui GLFW" << std::endl;
+        return -1;
+    }
+    if (!ImGui_ImplOpenGL3_Init("#version 460")) {
+        std::cerr << "Failed to initialize ImGui OpenGL3" << std::endl;
+        return -1;
+    }
+    std::cout << "ImGui initialized successfully" << std::endl;
 
     // Get OpenGL version information
     const GLubyte* version = glGetString(GL_VERSION);
@@ -122,23 +130,6 @@ int main() {
     // render loop
     //================================================================================================
     while (!glfwWindowShouldClose(window)) {
-
-        //================================================================================================
-        // ImGUI
-        //================================================================================================
-        // ImGui frame
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-
-        // ImGui drawing codes
-        ImGui::Begin("Hello, ImGui!");
-        ImGui::Text("Just for testing ImGUI is successfully integrated with OpenGL.");
-        ImGui::End();
-
-        // render ImGui
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         //================================================================================================
         // OpenGL codes
@@ -191,6 +182,23 @@ int main() {
         wave.render();
 
         environment.render(view, projection, camera.Position, skybox.getCubemapTexture(), currentFrame);
+
+        //================================================================================================
+        // ImGUI
+        //================================================================================================
+        // ImGui frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        // ImGui drawing codes
+        ImGui::Begin("Hello, ImGui!");
+        ImGui::Text("Just for testing ImGUI is successfully integrated with OpenGL.");
+        ImGui::End();
+
+        // render ImGui
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         // swap buffer and poll IO events
         glfwSwapBuffers(window);
