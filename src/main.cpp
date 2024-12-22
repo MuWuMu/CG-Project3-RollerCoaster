@@ -21,6 +21,7 @@
 #include "wave.h"
 #include "skybox.h"
 #include "environment.h"
+#include "pixelization.h"
 
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
@@ -123,6 +124,9 @@ int main() {
 
     Environment environment;
 
+    // Post-processing
+    Pixelization pixelization(SCR_WIDTH, SCR_HEIGHT);
+
     // light
     glm::vec3 lightPos(30.0f, 1.0f, 30.0f);
 
@@ -146,9 +150,11 @@ int main() {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        // Begin post-processing render
+        pixelization.beginRender();
+
         // projection
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-
         // cam view
         glm::mat4 view = camera.GetViewMatrix();
 
@@ -182,6 +188,12 @@ int main() {
         wave.render();
 
         environment.render(view, projection, camera.Position, skybox.getCubemapTexture(), currentFrame);
+
+        // End post-processing render
+        pixelization.endRender();
+
+        // Render post-processing effect
+        pixelization.render(10.0f);
 
         //================================================================================================
         // ImGUI

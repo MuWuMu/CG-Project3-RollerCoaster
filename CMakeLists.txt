@@ -48,6 +48,7 @@ add_executable(roller-coaster
 	${SRC_DIR}wave.cpp
 	${SRC_DIR}skybox.cpp
 	${SRC_DIR}environment.cpp
+	${SRC_DIR}pixelization.cpp
 )
 
 # Project output directory
