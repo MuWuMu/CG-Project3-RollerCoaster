@@ -10,6 +10,8 @@ Texture::Texture(const char* texturePath)
     // filtering parameter
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // flip the texture
+    stbi_set_flip_vertically_on_load(true);
     // create texture
     int width, height, nrChannels;
     unsigned char* data = stbi_load(texturePath, &width, &height, &nrChannels, 0); // load in data

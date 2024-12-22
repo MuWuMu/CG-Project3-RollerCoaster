@@ -16,6 +16,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(IMGUI_DIR ${INCLUDE_DIR}imgui/)
+
 add_library(ImGUI
 	${IMGUI_DIR}imconfig.h
 	${IMGUI_DIR}imgui.cpp
@@ -35,15 +36,16 @@ add_library(ImGUI
 	${IMGUI_DIR}imgui_impl_opengl3_loader.h
 )
 
+add_library(glad STATIC ${SRC_DIR}/glad.c)
+
 add_executable(roller-coaster 
 	${SRC_DIR}main.cpp
 	${SRC_DIR}glad.c
-	${SRC_DIR}stb_image.h
 	${SRC_DIR}stb_image.cpp
-	${SRC_DIR}Shader.h
 	${SRC_DIR}Shader.cpp
-	${SRC_DIR}Texture.h
 	${SRC_DIR}Texture.cpp
+	${SRC_DIR}Camera.cpp
+	${SRC_DIR}wave.cpp
 )
 
 # Project output directory
@@ -57,12 +59,14 @@ add_custom_command(
 
 	COMMAND ${CMAKE_COMMAND} -E copy_directory
 	${SRC_DIR}/shaders		${PROJECT_OUTPUT_DIR}/shaders
+
 	COMMAND ${CMAKE_COMMAND} -E copy_directory
 	${RESOURCE_DIR}			${PROJECT_OUTPUT_DIR}/resources
 )
 
 target_link_libraries(roller-coaster
 	ImGUI
+	glad
 	${LIB_DIR}/glfw3.lib
 	${LIB_DIR}/OpenGL32.lib
 	gdi32
