@@ -18,7 +18,8 @@
 #include "Texture.h"
 #include "Camera.h"
 
-#include "Wave.h"
+#include "wave.h"
+#include "skybox.h"
 
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
@@ -98,6 +99,19 @@ int main() {
     // HW10: Waves
     Wave wave(100, 100);
     Shader waterShader("shaders/wave.vs", "shaders/wave.fs");
+
+    // HW11: Skybox
+    std::vector<std::string>faces {
+        "resources/skybox/right.jpg",
+        "resources/skybox/left.jpg",
+        "resources/skybox/top.jpg",
+        "resources/skybox/bottom.jpg",
+        "resources/skybox/front.jpg",
+        "resources/skybox/back.jpg"
+    };
+    Skybox skybox(faces);
+    Shader skyboxShader("shaders/skybox.vs", "shaders/skybox.fs");
+
     // light
     glm::vec3 lightPos(30.0f, 1.0f, 30.0f);
 
@@ -318,6 +332,13 @@ int main() {
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
 
+        // HW11: Skybox
+        skyboxShader.use();
+        glm::mat4 skyboxView = glm::mat4(glm::mat3(camera.GetViewMatrix())); // 移除平移部分
+        skyboxShader.setMat4("view", skyboxView);
+        skyboxShader.setMat4("projection", projection);
+        skybox.render(skyboxView, projection);
+
         // HW10: Waves
         wave.update(deltaTime);
         waterShader.use();
@@ -327,6 +348,8 @@ int main() {
         waterShader.setVec3("viewPos", camera.Position);
         waterShader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
         waterShader.setVec3("objectColor", glm::vec3(0.0f, 0.5f, 1.0f));
+
+        waterShader.setInt("skybox", 0);
 
         //set model and projection matrix
         glm::mat4 waveModel = glm::mat4(1.0f);
