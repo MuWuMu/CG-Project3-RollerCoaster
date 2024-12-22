@@ -10,6 +10,7 @@ class Skybox {
 public:
     Skybox(const std::vector<std::string>& faces);
     void render(const glm::mat4& view, const glm::mat4& projection);
+    unsigned int getCubemapTexture() const { return cubemapTexture; }
 
 private:
     unsigned int loadCubemap(const std::vector<std::string>& faces);
