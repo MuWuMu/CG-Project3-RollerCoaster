@@ -11,11 +11,17 @@ public:
     void update(float deltaTime);
     void render();
 
+    unsigned int width, height;
+    
+    float speed;
+    float amplitude;
+    glm::vec3 color;
+    glm::vec2 direction;
+
 private:
     void initMesh();
     void updateMesh();
 
-    unsigned int width, height;
     float time;
     std::vector<glm::vec3> positions;
     std::vector<glm::vec3> normals;

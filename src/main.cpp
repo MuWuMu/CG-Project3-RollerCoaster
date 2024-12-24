@@ -17,6 +17,7 @@
 #include "Shader.h"
 #include "Texture.h"
 #include "Camera.h"
+#include "Light.h"
 
 #include "wave.h"
 #include "skybox.h"
@@ -59,7 +60,7 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // create window
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Project3 Roller Coaster", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Introduction to Computer Graphics", nullptr, nullptr);
     if (!window) {
         std::cerr << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
@@ -85,7 +86,6 @@ int main() {
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     ImGui::StyleColorsDark();
 
-    // ImGui GLFW and OpenGL3 initailization
     if (!ImGui_ImplGlfw_InitForOpenGL(window, true)) {
         std::cerr << "Failed to initialize ImGui GLFW" << std::endl;
         return -1;
@@ -127,8 +127,10 @@ int main() {
     // Post-processing
     Pixelization pixelization(SCR_WIDTH, SCR_HEIGHT);
 
-    // light
-    glm::vec3 lightPos(30.0f, 1.0f, 30.0f);
+    // Light
+    Light directionalLight(DIRECTIONAL, glm::vec3(0.0f), glm::vec3(-0.2f, -1.0f, -0.3f), glm::vec3(1.0f, 1.0f, 1.0f));
+    Light pointLight(POINT, glm::vec3(30.0f, 1.0f, 30.0f), glm::vec3(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+    Light spotLight(SPOT, camera.Position, camera.Front, glm::vec3(1.0f, 1.0f, 1.0f));
 
     //================================================================================================
     // render loop
@@ -138,7 +140,6 @@ int main() {
         //================================================================================================
         // OpenGL codes
         //================================================================================================
-        
         // per-frame time logic
         float currentFrame = static_cast<float>(glfwGetTime());
         deltaTime = currentFrame - lastFrame;
@@ -168,22 +169,19 @@ int main() {
         // HW10: Waves
         wave.update(deltaTime);
         waterShader.use();
-
-        // Set light pos and view pos
-        waterShader.setVec3("lightPos", lightPos);
+        // Set light and view pos
+        directionalLight.apply(waterShader);
+        pointLight.apply(waterShader);
+        spotLight.apply(waterShader);
         waterShader.setVec3("viewPos", camera.Position);
-        waterShader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
-        waterShader.setVec3("objectColor", glm::vec3(0.0f, 0.5f, 1.0f));
-
+        waterShader.setVec3("objectColor", wave.color);
         waterShader.setInt("skybox", 0);
-
         //set model and projection matrix
         glm::mat4 waveModel = glm::mat4(1.0f);
-        waveModel = glm::translate(waveModel, glm::vec3(-50.0f, -20.0f, -50.0f));
+        waveModel = glm::translate(waveModel, glm::vec3(-(wave.width / 2.0f), -20.0f, -(wave.height / 2.0f)));
         waterShader.setMat4("model", waveModel);
         waterShader.setMat4("view", view);
         waterShader.setMat4("projection", projection);
-
         // render wave
         wave.render();
 
@@ -193,7 +191,7 @@ int main() {
         pixelization.endRender();
 
         // Render post-processing effect
-        pixelization.render(10.0f);
+        pixelization.render();
 
         //================================================================================================
         // ImGUI
@@ -204,8 +202,52 @@ int main() {
         ImGui::NewFrame();
 
         // ImGui drawing codes
-        ImGui::Begin("Hello, ImGui!");
-        ImGui::Text("Just for testing ImGUI is successfully integrated with OpenGL.");
+        ImGui::Begin("Control Panel");
+        ImGui::Text("Introduction to Computer Graphics");
+
+        // User Guide
+        ImGui::BeginChild("User Guide", ImVec2(0, 100), true);
+        ImGui::Text("User Guide");
+        ImGui::Text("M: Enable/Disable Mouse Camera Control");
+        ImGui::Text("W: Move Forward");
+        ImGui::Text("S: Move Backward");
+        ImGui::Text("A: Move Left");
+        ImGui::Text("D: Move Right");
+        ImGui::Text("Space: Move Up");
+        ImGui::Text("Left Control: Move Down");
+        ImGui::EndChild();
+
+        // Pixelization Control
+        ImGui::BeginChild("Pixelization Control", ImVec2(0, 100), true);
+        ImGui::Text("Pixelization Control");
+        ImGui::SliderFloat("Pixel Size", &pixelization.pixelSize, 1.0f, 20.0f);
+        ImGui::EndChild();
+
+        // Create a child window for controlling wave properties
+        ImGui::BeginChild("Wave Control", ImVec2(0, 100), true);
+        ImGui::Text("Wave Control");
+        ImGui::SliderFloat("Wave Speed", &wave.speed, 0.1f, 10.0f);
+        ImGui::SliderFloat("Wave Amplitude", &wave.amplitude, 0.0f, 10.0f);
+        ImGui::ColorEdit3("Wave Color", glm::value_ptr(wave.color));
+        ImGui::SliderFloat2("Wave Direction", glm::value_ptr(wave.direction), -1.0f, 1.0f);
+        ImGui::EndChild();
+
+        // Create a child window for controlling light properties
+        ImGui::BeginChild("Light Control", ImVec2(0, 200), true);
+        ImGui::Text("Directional Light");
+        ImGui::ColorEdit3("Dir Light Color", glm::value_ptr(directionalLight.color));
+        ImGui::SliderFloat3("Dir Light Direction", glm::value_ptr(directionalLight.direction), -1.0f, 1.0f);
+
+        ImGui::Text("Point Light");
+        ImGui::ColorEdit3("Point Light Color", glm::value_ptr(pointLight.color));
+        ImGui::SliderFloat3("Point Light Position", glm::value_ptr(pointLight.position), -50.0f, 50.0f);
+
+        ImGui::Text("Spot Light");
+        ImGui::ColorEdit3("Spot Light Color", glm::value_ptr(spotLight.color));
+        ImGui::SliderFloat3("Spot Light Position", glm::value_ptr(spotLight.position), -50.0f, 50.0f);
+        ImGui::SliderFloat3("Spot Light Direction", glm::value_ptr(spotLight.direction), -1.0f, 1.0f);
+        ImGui::EndChild();
+
         ImGui::End();
 
         // render ImGui
@@ -225,6 +267,7 @@ int main() {
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 
+    // clean up GLFW
     glfwDestroyWindow(window);
     glfwTerminate();
     return 0;
@@ -240,16 +283,28 @@ void processInput(GLFWwindow* window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
+    // Camera movement
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        camera.ProcessKeyboard(FORWARD, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        camera.ProcessKeyboard(BACKWARD, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        camera.ProcessKeyboard(LEFT, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        camera.ProcessKeyboard(RIGHT, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        camera.ProcessKeyboard(UP, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+        camera.ProcessKeyboard(DOWN, deltaTime);
+
     // Switch mouse control
     if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS) {
         if (!mouseControlButtonPressed) {
             mouseControlEnabled = !mouseControlEnabled;
             if (mouseControlEnabled) {
                 glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-                glfwSetCursorPosCallback(window, mouse_callback);
             } else {
                 glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-                glfwSetCursorPosCallback(window, nullptr);
             }
             mouseControlButtonPressed = true;
         }
@@ -266,8 +321,7 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
     float xpos = static_cast<float>(xposIn);
     float ypos = static_cast<float>(yposIn);
 
-    if (firstMouse)
-    {
+    if (firstMouse) {
         lastX = xpos;
         lastY = ypos;
         firstMouse = false;
@@ -280,11 +334,11 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
     lastY = ypos;
 
     camera.ProcessMouseMovement(xoffset, yoffset);
+
 }
 
-// glfw: whenever the mouse scroll wheel scrolls, this callback is called
-// ----------------------------------------------------------------------
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
+    if (!mouseControlEnabled) return;
     camera.ProcessMouseScroll(static_cast<float>(yoffset));
 }

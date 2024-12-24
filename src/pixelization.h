@@ -10,7 +10,9 @@ public:
     Pixelization(unsigned int width, unsigned int height);
     void beginRender();
     void endRender();
-    void render(float pixelSize);
+    void render();
+
+    float pixelSize;
 
 private:
     void initRenderData();

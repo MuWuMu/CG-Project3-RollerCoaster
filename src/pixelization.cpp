@@ -2,7 +2,7 @@
 #include <iostream>
 
 Pixelization::Pixelization(unsigned int width, unsigned int height)
-    : width(width), height(height), pixelizationShader("shaders/pixelization.vs", "shaders/pixelization.fs") {
+    : width(width), height(height), pixelizationShader("shaders/pixelization.vs", "shaders/pixelization.fs"), pixelSize(1.0f) {
     // Initialize FBO
     glGenFramebuffers(1, &FBO);
     glBindFramebuffer(GL_FRAMEBUFFER, FBO);
@@ -38,7 +38,7 @@ void Pixelization::endRender() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Pixelization::render(float pixelSize) {
+void Pixelization::render() {
     pixelizationShader.use();
     pixelizationShader.setFloat("pixelSize", pixelSize);
     pixelizationShader.setVec2("screenSize", glm::vec2(width, height));
