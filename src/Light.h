@@ -14,7 +14,7 @@ class Light {
 public:
     Light(LightType type, glm::vec3 position, glm::vec3 direction, glm::vec3 color);
 
-    void apply(Shader& shader);
+    void apply(Shader& shader) const;
 
     LightType type;
     glm::vec3 position;

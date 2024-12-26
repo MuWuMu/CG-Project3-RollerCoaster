@@ -109,8 +109,7 @@ int main() {
     glEnable(GL_DEPTH_TEST);
 
     // Waves
-    Wave wave(20, 20);
-    Shader waterShader("shaders/wave.vs", "shaders/wave.fs");
+    Wave wave(100, 100);
 
     // Skybox
     std::vector<std::string>faces {
@@ -122,7 +121,6 @@ int main() {
         "resources/skybox/back.jpg"
     };
     Skybox skybox(faces);
-    Shader skyboxShader("shaders/skybox.vs", "shaders/skybox.fs");
 
     Environment environment;
 
@@ -161,31 +159,12 @@ int main() {
         // cam view
         glm::mat4 view = camera.GetViewMatrix();
 
-        // HW11: Skybox
-        skyboxShader.use();
-        glm::mat4 skyboxView = glm::mat4(glm::mat3(camera.GetViewMatrix()));
-        skyboxShader.setMat4("view", skyboxView);
-        skyboxShader.setMat4("projection", projection);
-        skybox.render(skyboxView, projection);
+        // Skybox
+        skybox.render(view, projection);
 
-        // HW10: Waves
+        // Waves
         wave.update(deltaTime);
-        waterShader.use();
-        // Set light and view pos
-        directionalLight.apply(waterShader);
-        pointLight.apply(waterShader);
-        spotLight.apply(waterShader);
-        waterShader.setVec3("viewPos", camera.Position);
-        waterShader.setVec3("objectColor", wave.color);
-        waterShader.setInt("skybox", 0);
-        //set model and projection matrix
-        glm::mat4 waveModel = glm::mat4(1.0f);
-        waveModel = glm::translate(waveModel, glm::vec3(-(wave.width / 2.0f), -20.0f, -(wave.height / 2.0f)));
-        waterShader.setMat4("model", waveModel);
-        waterShader.setMat4("view", view);
-        waterShader.setMat4("projection", projection);
-        // render wave
-        wave.render();
+        wave.render(view, projection, camera.Position, directionalLight, pointLight, spotLight, skybox.getCubemapTexture());
 
         environment.render(view, projection, camera.Position, skybox.getCubemapTexture(), currentFrame);
 

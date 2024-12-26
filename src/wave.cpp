@@ -4,7 +4,8 @@
 #include <glm/gtc/type_ptr.hpp>
 
 Wave::Wave(unsigned int width, unsigned int height)
-    : width(width), height(height), time(0.0f), speed(1.0f), amplitude(3.0f), frequency(1.0f), color(0.0f, 0.5f, 1.0f), direction(1.0f, 1.0f) {
+    : width(width), height(height), time(0.0f), speed(1.0f), amplitude(3.0f), frequency(1.0f), color(0.0f, 0.5f, 1.0f), direction(1.0f, 1.0f),
+      waveShader("shaders/wave.vs", "shaders/wave.fs") {
     initMesh();
 }
 
@@ -77,10 +78,30 @@ void Wave::updateMesh() {
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferSubData(GL_ARRAY_BUFFER, 0, positions.size() * sizeof(glm::vec3), &positions[0]);
     glBufferSubData(GL_ARRAY_BUFFER, positions.size() * sizeof(glm::vec3), normals.size() * sizeof(glm::vec3), &normals[0]);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void Wave::render() {
+void Wave::render(const glm::mat4& view, const glm::mat4& projection, const glm::vec3& viewPos, 
+                  const Light& directionalLight, const Light& pointLight, const Light& spotLight, unsigned int skyboxTexture) {
+    waveShader.use();
+    waveShader.setMat4("view", view);
+    waveShader.setMat4("projection", projection);
+    waveShader.setVec3("viewPos", viewPos);
+    waveShader.setVec3("objectColor", color);
+    waveShader.setInt("skybox", 0);
+
+    directionalLight.apply(waveShader);
+    pointLight.apply(waveShader);
+    spotLight.apply(waveShader);
+
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(-(width / 2.0f), -20.0f, -(height / 2.0f)));
+    waveShader.setMat4("model", model);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture);
+
     glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(indices.size()), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 }

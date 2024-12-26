@@ -3,13 +3,17 @@
 
 #include <vector>
 #include <glm/glm.hpp>
+#include "Shader.h"
+#include "Light.h"
 
 class Wave {
 public:
 
     Wave(unsigned int width, unsigned int height);
     void update(float deltaTime);
-    void render();
+    void render(const glm::mat4& view, const glm::mat4& projection, const glm::vec3& viewPos,
+                const Light& directionalLight, const Light& pointLight, const Light& spotLight,
+                unsigned int skyboxTexture);
 
     unsigned int width, height;
     
@@ -28,6 +32,7 @@ private:
     std::vector<glm::vec3> normals;
     std::vector<unsigned int> indices;
     unsigned int VAO, VBO, EBO;
+    Shader waveShader;
 };
 
 #endif

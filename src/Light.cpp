@@ -3,7 +3,7 @@
 Light::Light(LightType type, glm::vec3 position, glm::vec3 direction, glm::vec3 color)
     : type(type), position(position), direction(direction), color(color) {}
 
-void Light::apply(Shader& shader) {
+void Light::apply(Shader& shader) const {
     shader.use();
     switch (type) {
     case DIRECTIONAL:

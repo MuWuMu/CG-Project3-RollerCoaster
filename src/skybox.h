@@ -5,6 +5,7 @@
 #include <string>
 #include <glad/glad.h>
 #include <glm/glm.hpp>
+#include "Shader.h"
 
 class Skybox {
 public:
@@ -13,8 +14,11 @@ public:
     unsigned int getCubemapTexture() const { return cubemapTexture; }
 
 private:
-    unsigned int loadCubemap(const std::vector<std::string>& faces);
+    void loadCubemap(const std::vector<std::string>& faces);
+    void initRenderData();
+    
     unsigned int VAO, VBO, cubemapTexture;
+    Shader skyboxShader;
 };
 
 #endif
