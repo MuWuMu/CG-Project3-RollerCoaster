@@ -3,7 +3,7 @@
 
 PostProcessing::PostProcessing(unsigned int width, unsigned int height)
     : width(width), height(height), pixelSize(1.0f),
-      postProcessingShader("shaders/post_processings/postProcessing.vs", "shaders/post_processings/postProcessing.fs"),
+      defaultShader("shaders/post_processings/postProcessing.vs", "shaders/post_processings/postProcessing.fs"),
       pixelizationShader("shaders/post_processings/postProcessing.vs", "shaders/post_processings/pixelization.fs"),
       inversionShader("shaders/post_processings/postProcessing.vs", "shaders/post_processings/inversion.fs"),
       grayscaleShader("shaders/post_processings/postProcessing.vs", "shaders/post_processings/grayscale.fs"),
@@ -76,7 +76,7 @@ void PostProcessing::render(PostProcessingEffect effect) {
             break;
         case NONE:
         default:
-            shader = &postProcessingShader;
+            shader = &defaultShader;
             shader->use();
             break;
     }

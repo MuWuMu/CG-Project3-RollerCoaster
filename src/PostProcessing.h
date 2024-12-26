@@ -31,7 +31,7 @@ private:
     unsigned int FBO, RBO;
     unsigned int texture;
     unsigned int VAO, VBO;
-    Shader postProcessingShader;
+    Shader defaultShader;
     Shader pixelizationShader;
     Shader inversionShader;
     Shader grayscaleShader;
