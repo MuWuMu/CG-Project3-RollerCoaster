@@ -108,11 +108,11 @@ int main() {
 
     glEnable(GL_DEPTH_TEST);
 
-    // HW10: Waves
+    // Waves
     Wave wave(20, 20);
     Shader waterShader("shaders/wave.vs", "shaders/wave.fs");
 
-    // HW11: Skybox
+    // Skybox
     std::vector<std::string>faces {
         "resources/skybox/right.jpg",
         "resources/skybox/left.jpg",
@@ -205,7 +205,9 @@ int main() {
 
         // ImGui drawing codes
         ImGui::Begin("Control Panel");
-        ImGui::Text("Introduction to Computer Graphics");
+        ImGui::Text("Introduction to Computer Graphics Homework");
+        // Display FPS
+        ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
 
         // User Guide
         ImGui::BeginChild("User Guide", ImVec2(0, 100), true);
