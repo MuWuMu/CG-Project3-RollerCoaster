@@ -1,8 +1,15 @@
-#include "Pixelization.h"
+#include "PostProcessing.h"
 #include <iostream>
 
-Pixelization::Pixelization(unsigned int width, unsigned int height)
-    : width(width), height(height), pixelizationShader("shaders/pixelization.vs", "shaders/pixelization.fs"), pixelSize(1.0f) {
+PostProcessing::PostProcessing(unsigned int width, unsigned int height)
+    : width(width), height(height), pixelSize(1.0f),
+      postProcessingShader("shaders/post_processings/postProcessing.vs", "shaders/post_processings/postProcessing.fs"),
+      pixelizationShader("shaders/post_processings/postProcessing.vs", "shaders/post_processings/pixelization.fs"),
+      inversionShader("shaders/post_processings/postProcessing.vs", "shaders/post_processings/inversion.fs"),
+      grayscaleShader("shaders/post_processings/postProcessing.vs", "shaders/post_processings/grayscale.fs"),
+      sharpenShader("shaders/post_processings/postProcessing.vs", "shaders/post_processings/sharpen.fs"),
+      blurShader("shaders/post_processings/postProcessing.vs", "shaders/post_processings/blur.fs"),
+      edgeDetectionShader("shaders/post_processings/postProcessing.vs", "shaders/post_processings/edgeDetection.fs") {
     // Initialize FBO
     glGenFramebuffers(1, &FBO);
     glBindFramebuffer(GL_FRAMEBUFFER, FBO);
@@ -29,19 +36,50 @@ Pixelization::Pixelization(unsigned int width, unsigned int height)
     initRenderData();
 }
 
-void Pixelization::beginRender() {
+void PostProcessing::beginRender() {
     glBindFramebuffer(GL_FRAMEBUFFER, FBO);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void Pixelization::endRender() {
+void PostProcessing::endRender() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Pixelization::render() {
-    pixelizationShader.use();
-    pixelizationShader.setFloat("pixelSize", pixelSize);
-    pixelizationShader.setVec2("screenSize", glm::vec2(width, height));
+void PostProcessing::render(PostProcessingEffect effect) {
+    Shader* shader;
+    switch (effect) {
+        case PIXELIZATION:
+            shader = &pixelizationShader;
+            shader->use();
+            shader->setFloat("pixelSize", pixelSize);
+            shader->setVec2("screenSize", glm::vec2(width, height));
+            break;
+        case INVERSION:
+            shader = &inversionShader;
+            shader->use();
+            break;
+        case GRAYSCALE:
+            shader = &grayscaleShader;
+            shader->use();
+            break;
+        case SHARPEN:
+            shader = &sharpenShader;
+            shader->use();
+            break;
+        case BLUR:
+            shader = &blurShader;
+            shader->use();
+            break;
+        case EDGE_DETECTION:
+            shader = &edgeDetectionShader;
+            shader->use();
+            break;
+        case NONE:
+        default:
+            shader = &postProcessingShader;
+            shader->use();
+            break;
+    }
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
@@ -51,7 +89,7 @@ void Pixelization::render() {
     glBindVertexArray(0);
 }
 
-void Pixelization::initRenderData() {
+void PostProcessing::initRenderData() {
     // Configure VAO/VBO
     unsigned int VBO;
     float vertices[] = {

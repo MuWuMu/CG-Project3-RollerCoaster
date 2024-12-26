@@ -18,11 +18,11 @@
 #include "Texture.h"
 #include "Camera.h"
 #include "Light.h"
+#include "PostProcessing.h"
 
 #include "wave.h"
 #include "skybox.h"
 #include "environment.h"
-#include "pixelization.h"
 
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
@@ -44,6 +44,8 @@ float lastFrame = 0.0f;
 
 bool mouseControlEnabled = true;
 bool mouseControlButtonPressed = false;
+
+PostProcessingEffect currentEffect = NONE;
 
 int main() {
 
@@ -125,7 +127,7 @@ int main() {
     Environment environment;
 
     // Post-processing
-    Pixelization pixelization(SCR_WIDTH, SCR_HEIGHT);
+    PostProcessing postProcessing(SCR_WIDTH, SCR_HEIGHT);
 
     // Light
     Light directionalLight(DIRECTIONAL, glm::vec3(0.0f), glm::vec3(-0.2f, -1.0f, -0.3f), glm::vec3(1.0f, 1.0f, 1.0f));
@@ -152,7 +154,7 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Begin post-processing render
-        pixelization.beginRender();
+        postProcessing.beginRender();
 
         // projection
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
@@ -188,10 +190,10 @@ int main() {
         environment.render(view, projection, camera.Position, skybox.getCubemapTexture(), currentFrame);
 
         // End post-processing render
-        pixelization.endRender();
+        postProcessing.endRender();
 
         // Render post-processing effect
-        pixelization.render();
+        postProcessing.render(currentEffect);
 
         //================================================================================================
         // ImGUI
@@ -218,9 +220,27 @@ int main() {
         ImGui::EndChild();
 
         // Pixelization Control
-        ImGui::BeginChild("Pixelization Control", ImVec2(0, 100), true);
-        ImGui::Text("Pixelization Control");
-        ImGui::SliderFloat("Pixel Size", &pixelization.pixelSize, 1.0f, 20.0f);
+        ImGui::BeginChild("Post-Processing Control", ImVec2(0, 100), true);
+        ImGui::Text("Post-Processing Control");
+        const char* effects[] = { "None", "Pixelization", "Inversion", "Grayscale", "Sharpen", "Blur", "Edge Detection" };
+        static int currentEffectIndex = 0;
+        if (ImGui::BeginCombo("Select Effect", effects[currentEffectIndex])) {
+            for (int n = 0; n < IM_ARRAYSIZE(effects); n++) {
+                bool isSelected = (currentEffectIndex == n);
+                if (ImGui::Selectable(effects[n], isSelected)) {
+                    currentEffectIndex = n;
+                    currentEffect = static_cast<PostProcessingEffect>(n);
+                }
+                if (isSelected) {
+                    ImGui::SetItemDefaultFocus();
+                }
+            }
+            ImGui::EndCombo();
+        }
+        if (currentEffect == PIXELIZATION) {
+            ImGui::SliderFloat("Pixel Size", &postProcessing.pixelSize, 1.0f, 20.0f);
+        }
+
         ImGui::EndChild();
 
         // Create a child window for controlling wave properties
