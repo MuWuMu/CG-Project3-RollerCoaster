@@ -6,8 +6,12 @@ set(RESOURCE_DIR ${PROJECT_SOURCE_DIR}/resources/)
 set(INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include/)
 set(LIB_DIR ${PROJECT_SOURCE_DIR}/lib/)
 
+set(ASSIMP_INCLUDE_DIR ${INCLUDE_DIR}/assimp)
+set(ASSIMP_LIB_DIR ${LIB_DIR})
+
 include_directories(${INCLUDE_DIR})
 include_directories(${LIB_DIR})
+include_directories(${ASSIMP_INCLUDE_DIRS})
 
 add_Definitions("-D_XKEYCHECK_H")
 add_definitions(-DPROJECT_DIR="${PROJECT_SOURCE_DIR}")
@@ -74,4 +78,5 @@ target_link_libraries(roller-coaster
 	${LIB_DIR}/glfw3.lib
 	${LIB_DIR}/OpenGL32.lib
 	gdi32
+	${ASSIMP_LIB_DIR}/assimp-vc143-mtd.lib
 )
