@@ -15,6 +15,7 @@ public:
     
     float speed;
     float amplitude;
+    float frequency;
     glm::vec3 color;
     glm::vec2 direction;
 

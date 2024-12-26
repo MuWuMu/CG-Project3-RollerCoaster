@@ -107,7 +107,7 @@ int main() {
     glEnable(GL_DEPTH_TEST);
 
     // HW10: Waves
-    Wave wave(100, 100);
+    Wave wave(20, 20);
     Shader waterShader("shaders/wave.vs", "shaders/wave.fs");
 
     // HW11: Skybox
@@ -161,7 +161,7 @@ int main() {
 
         // HW11: Skybox
         skyboxShader.use();
-        glm::mat4 skyboxView = glm::mat4(glm::mat3(camera.GetViewMatrix())); // 移除平移部分
+        glm::mat4 skyboxView = glm::mat4(glm::mat3(camera.GetViewMatrix()));
         skyboxShader.setMat4("view", skyboxView);
         skyboxShader.setMat4("projection", projection);
         skybox.render(skyboxView, projection);
@@ -227,7 +227,8 @@ int main() {
         ImGui::BeginChild("Wave Control", ImVec2(0, 100), true);
         ImGui::Text("Wave Control");
         ImGui::SliderFloat("Wave Speed", &wave.speed, 0.1f, 10.0f);
-        ImGui::SliderFloat("Wave Amplitude", &wave.amplitude, 0.0f, 10.0f);
+        ImGui::SliderFloat("Wave Amplitude", &wave.amplitude, 0.1f, 10.0f);
+        ImGui::SliderFloat("Wave Frequency", &wave.frequency, 0.1f, 10.0f);
         ImGui::ColorEdit3("Wave Color", glm::value_ptr(wave.color));
         ImGui::SliderFloat2("Wave Direction", glm::value_ptr(wave.direction), -1.0f, 1.0f);
         ImGui::EndChild();
